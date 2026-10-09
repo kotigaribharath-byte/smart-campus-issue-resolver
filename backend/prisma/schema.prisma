@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(uuid())
+  name         String
+  email        String       @unique
+  password     String
+  role         String       @default("student") // student, staff, admin
+  phone        String?      @default("")
+  studentId    String?      @default("")
+  staffId      String?      @default("")
+  profileImage String?      @default("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80")
+  active       Boolean      @default(true)
+  departmentId String?
+  department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  reportedIssues Issue[]       @relation("ReportedIssues")
+  assignedIssues Issue[]       @relation("AssignedIssues")
+  issueUpdates   IssueUpdate[]
+  notifications  Notification[]
+  feedbacks      Feedback[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role, active])
+  @@index([email])
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?  @default("")
+  categoryKey String?  @default("")
+  active      Boolean  @default(true)
+  users       User[]
+  issues      Issue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Building {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  block       String?  @default("")
+  floors      String[] @default(["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor"])
+  description String?  @default("")
+  issues      Issue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Issue {
+  id           String        @id @default(uuid())
+  complaintId  String        @unique
+  title        String
+  description  String
+  category     String
+  priority     String        @default("Medium") // Low, Medium, High, Critical
+  status       String        @default("Submitted") // Submitted, Assigned, In Progress, On Hold, Resolved, Closed, Reopened
+  buildingId   String
+  building     Building      @relation(fields: [buildingId], references: [id], onDelete: Restrict)
+  floor        String
+  location     String
+  imageUrls    String[]      @default([])
+  reportedById String
+  reportedBy   User          @relation("ReportedIssues", fields: [reportedById], references: [id], onDelete: Cascade)
+  assignedToId String?
+  assignedTo   User?         @relation("AssignedIssues", fields: [assignedToId], references: [id], onDelete: SetNull)
+  departmentId String?
+  department   Department?   @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  resolvedAt   DateTime?
+  reopenCount  Int           @default(0)
+
+  timeline      IssueUpdate[]
+  feedback      Feedback?
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, priority, createdAt])
+  @@index([reportedById, status])
+  @@index([assignedToId, status])
+}
+
+model IssueUpdate {
+  id             String   @id @default(uuid())
+  issueId        String
+  issue          Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  updatedById    String
+  updatedBy      User     @relation(fields: [updatedById], references: [id], onDelete: Cascade)
+  previousStatus String?  @default("")
+  newStatus      String?  @default("")
+  comment        String?  @default("")
+  imageUrl       String?  @default("")
+  actionType     String   @default("comment") // created, assigned, status_change, comment, reopened, resolved, feedback
+
+  createdAt DateTime @default(now())
+
+  @@index([issueId, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issueId   String?
+  issue     Issue?   @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  message   String
+  type      String   @default("status_update") // status_update, assignment, comment, reopened, feedback, system
+  read      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  issueId   String   @unique
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  rating    Int
+  comment   String?  @default("")
+
+  createdAt DateTime @default(now())
+}
