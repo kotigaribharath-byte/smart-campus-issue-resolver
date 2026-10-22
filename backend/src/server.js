@@ -1,13 +1,11 @@
+import 'dotenv/config';
 import http from 'http';
-import dotenv from 'dotenv';
 import { Server as SocketIOServer } from 'socket.io';
 import app from './app.js';
 import { connectDB } from './config/db.js';
 import prisma from './config/prisma.js';
 import { initSocket } from './socket/socketHandler.js';
 import { seedDatabase } from './seed.js';
-
-dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 
