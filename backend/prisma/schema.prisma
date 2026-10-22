@@ -14,11 +14,12 @@ model User {
   password     String
   role         String       @default("student") // student, staff, admin
   phone        String?      @default("")
-  studentId    String?      @default("")
-  staffId      String?      @default("")
-  profileImage String?      @default("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80")
-  active       Boolean      @default(true)
-  departmentId String?
+  studentId       String?      @default("")
+  staffId         String?      @default("")
+  profileImage    String?      @default("https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80")
+  active          Boolean      @default(true)
+  isEmailVerified Boolean      @default(false)
+  departmentId    String?
   department   Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
 
   reportedIssues Issue[]       @relation("ReportedIssues")
@@ -135,4 +136,15 @@ model Feedback {
   comment   String?  @default("")
 
   createdAt DateTime @default(now())
+}
+
+model OtpVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  type      String   @default("REGISTER") // REGISTER, FORGOT_PASSWORD
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email, type])
 }

@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# smart-campus-issue-resolver
-=======
 # CampusFix – Smart Campus Issue Resolver 🏛️⚡
 
 > **A Complete, Production-Grade Full-Stack Campus Facility Management, Real-Time Dispatch & Issue Resolution System.**

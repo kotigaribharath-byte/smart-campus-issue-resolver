@@ -280,7 +280,7 @@ export const ReportIssuePage = () => {
 
           {/* Image Upload Zone */}
           <ImageUploadZone
-            label="Attach Issue Photo (Optional but Recommended)"
+            label="Attach Issue Photo (Recommended)"
             onImageUploaded={(url) => setImageUrls(url ? [url] : [])}
           />
 

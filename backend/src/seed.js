@@ -138,6 +138,7 @@ export const seedDatabase = async () => {
         phone: '+1 (555) 019-2831',
         profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
         active: true,
+        isEmailVerified: true,
       },
     });
 
@@ -218,7 +219,12 @@ export const seedDatabase = async () => {
 
     const staffUsers = [];
     for (const s of staffMembersData) {
-      const created = await prisma.user.create({ data: s });
+      const created = await prisma.user.create({
+        data: {
+          ...s,
+          isEmailVerified: true,
+        },
+      });
       staffUsers.push(created);
     }
     console.log(` Created ${staffUsers.length} staff members.`);
@@ -247,6 +253,7 @@ export const seedDatabase = async () => {
           studentId,
           profileImage: `https://images.unsplash.com/photo-${1530000000000 + i * 123456}?w=150&auto=format&fit=crop&q=80`,
           active: true,
+          isEmailVerified: true,
         },
       });
       studentUsers.push(created);
@@ -263,6 +270,7 @@ export const seedDatabase = async () => {
         studentId: 'STU-2026-1000',
         profileImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
         active: true,
+        isEmailVerified: true,
       },
     });
     studentUsers.unshift(studentAlias);
@@ -664,3 +672,15 @@ export const seedDatabase = async () => {
     throw error;
   }
 };
+
+// If run directly from CLI
+if (process.argv[1] && process.argv[1].replace(/\\/g, '/').endsWith('src/seed.js')) {
+  seedDatabase()
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
