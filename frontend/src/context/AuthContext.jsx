@@ -38,7 +38,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await authService.login(credentials);
-      setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+      }
       return data;
     } finally {
       setLoading(false);
@@ -49,11 +51,38 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const data = await authService.register(userData);
-      setUser(data.user);
+      if (data.user) {
+        setUser(data.user);
+      }
       return data;
     } finally {
       setLoading(false);
     }
+  };
+
+  const verifyEmail = async ({ email, otp }) => {
+    setLoading(true);
+    try {
+      const data = await authService.verifyEmail({ email, otp });
+      if (data.user) {
+        setUser(data.user);
+      }
+      return data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resendOtp = async ({ email, type }) => {
+    return await authService.resendOtp({ email, type });
+  };
+
+  const forgotPassword = async (email) => {
+    return await authService.forgotPassword(email);
+  };
+
+  const resetPassword = async ({ email, otp, newPassword }) => {
+    return await authService.resetPassword({ email, otp, newPassword });
   };
 
   const logout = useCallback(() => {
@@ -87,6 +116,10 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'admin',
     login,
     register,
+    verifyEmail,
+    resendOtp,
+    forgotPassword,
+    resetPassword,
     logout,
     updateUserState,
     refreshUser,

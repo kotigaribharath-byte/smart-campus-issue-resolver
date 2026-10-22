@@ -31,17 +31,23 @@ export const RegisterPage = () => {
 
     try {
       setLoading(true);
+      const cleanEmail = email.trim().toLowerCase();
       const res = await register({
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: cleanEmail,
         password,
         phone: phone.trim(),
         studentId: studentId.trim(),
         role: 'student',
       });
 
-      success(`Welcome to CampusFix, ${res.user.name}! Your account is ready.`);
-      navigate('/student/dashboard');
+      if (res.requiresVerification) {
+        success(res.message || 'Registration initiated! Please enter the 6-digit code sent to your email.');
+        navigate(`/verify-email?email=${encodeURIComponent(cleanEmail)}`);
+      } else {
+        success(`Welcome to CampusFix, ${res.user?.name || name}! Your account is ready.`);
+        navigate('/student/dashboard');
+      }
     } catch (err) {
       error(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {

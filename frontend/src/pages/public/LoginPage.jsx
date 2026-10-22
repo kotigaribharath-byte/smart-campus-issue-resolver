@@ -37,6 +37,11 @@ export const LoginPage = () => {
         navigate('/student/dashboard');
       }
     } catch (err) {
+      if (err.response?.data?.requiresVerification) {
+        error(err.response.data.message || 'Please verify your email address to log in.');
+        navigate(`/verify-email?email=${encodeURIComponent(err.response.data.email || email)}`);
+        return;
+      }
       error(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
@@ -86,9 +91,17 @@ export const LoginPage = () => {
 
         {/* Password */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-            Password
-          </label>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Password
+            </label>
+            <Link
+              to="/forgot-password"
+              className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors"
+            >
+              Forgot Password?
+            </Link>
+          </div>
           <div className="relative">
             <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input

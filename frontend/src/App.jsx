@@ -13,6 +13,8 @@ import { ProtectedRoute } from './layouts/ProtectedRoute';
 import { LandingPage } from './pages/public/LandingPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { RegisterPage } from './pages/public/RegisterPage';
+import { VerifyEmailPage } from './pages/public/VerifyEmailPage';
+import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 import { NotFoundPage } from './pages/public/NotFoundPage';
 
 // Student Pages
@@ -51,6 +53,8 @@ export default function App() {
               <Route element={<AuthLayout />}>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-email" element={<VerifyEmailPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               </Route>
 
               {/* Main Application Layout */}
