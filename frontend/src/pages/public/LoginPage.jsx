@@ -74,7 +74,7 @@ export const LoginPage = () => {
         {/* Email */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-            Campus Email Address
+            Campus Email
           </label>
           <div className="relative">
             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
