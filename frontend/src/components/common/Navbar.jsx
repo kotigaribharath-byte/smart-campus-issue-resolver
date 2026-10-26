@@ -7,15 +7,12 @@ import {
   Menu,
   X,
   Search,
-  Bell,
-  Settings,
   ChevronDown,
   LayoutDashboard,
   PlusCircle,
   ClipboardList,
   User as UserIcon,
   LogOut,
-  Shield,
   Layers,
   Building2,
   BarChart3,
@@ -23,6 +20,8 @@ import {
   Users,
   Wrench,
   Zap,
+  Bell,
+  Sliders,
 } from 'lucide-react';
 
 export const Navbar = () => {
@@ -32,22 +31,39 @@ export const Navbar = () => {
 
   const [isNavDropdownOpen, setIsNavDropdownOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const dropdownRef = useRef(null);
-  const profileRef = useRef(null);
 
-  // Close dropdowns on outside click
+  // Timers to handle smooth hover without accidental flickers
+  const navTimerRef = useRef(null);
+  const profileTimerRef = useRef(null);
+
+  const handleNavMouseEnter = () => {
+    if (navTimerRef.current) clearTimeout(navTimerRef.current);
+    setIsNavDropdownOpen(true);
+  };
+
+  const handleNavMouseLeave = () => {
+    navTimerRef.current = setTimeout(() => {
+      setIsNavDropdownOpen(false);
+    }, 180);
+  };
+
+  const handleProfileMouseEnter = () => {
+    if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
+    setIsProfileOpen(true);
+  };
+
+  const handleProfileMouseLeave = () => {
+    profileTimerRef.current = setTimeout(() => {
+      setIsProfileOpen(false);
+    }, 180);
+  };
+
+  // Cleanup timers on unmount
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsNavDropdownOpen(false);
-      }
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setIsProfileOpen(false);
-      }
+    return () => {
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+      if (profileTimerRef.current) clearTimeout(profileTimerRef.current);
     };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const handleLogout = () => {
@@ -61,7 +77,6 @@ export const Navbar = () => {
     return '/student/dashboard';
   };
 
-  // Get nav items for the interactive hamburger dropdown matching Image 2
   const getDropdownNavItems = () => {
     if (isAdmin) {
       return [
@@ -82,7 +97,7 @@ export const Navbar = () => {
         { label: 'Technician Dashboard', to: '/staff/dashboard', icon: LayoutDashboard },
         { label: 'Assigned Work Orders', to: '/staff/assigned-issues', icon: Wrench },
         { label: 'Notifications', to: '/notifications', icon: Bell },
-        { label: 'Profile & Credentials', to: '/profile', icon: UserIcon },
+        { label: 'Profile & Skills', to: '/profile', icon: UserIcon },
       ];
     }
 
@@ -90,7 +105,7 @@ export const Navbar = () => {
     return [
       { label: 'Student Dashboard', to: '/student/dashboard', icon: LayoutDashboard },
       { label: 'Report Campus Issue', to: '/student/report', icon: PlusCircle, highlight: true },
-      { label: 'My Complaints & Tracking', to: '/student/my-issues', icon: ClipboardList },
+      { label: 'My Complaints', to: '/student/my-issues', icon: ClipboardList },
       { label: 'Notifications', to: '/notifications', icon: Bell },
       { label: 'My Profile & Details', to: '/profile', icon: UserIcon },
     ];
@@ -98,7 +113,6 @@ export const Navbar = () => {
 
   const dropdownLinks = getDropdownNavItems();
 
-  // User Initials
   const getInitials = (name) => {
     if (!name) return 'CF';
     const parts = name.trim().split(' ');
@@ -107,15 +121,20 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.02)] select-none">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-3 sm:gap-6">
+    <header className="sticky top-3.5 z-50 w-full px-4 sm:px-6 lg:px-8 select-none">
+      <div className="max-w-7xl mx-auto">
+        {/* Floating Navbar Container with Rounded Corners & Soft Drop Shadow */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-slate-200/90 shadow-[0_8px_30px_rgba(0,0,0,0.06)] px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
           
-          {/* ─── Left: Hamburger Button with Interactive Dropdown + Brand Logo ─── */}
+          {/* ─── Left: Hamburger Button with Hover Dropdown + Brand Logo ─── */}
           <div className="flex items-center gap-3">
             {isAuthenticated && (
-              <div className="relative" ref={dropdownRef}>
-                {/* Hamburger Button (Matching Image 2) */}
+              <div
+                className="relative"
+                onMouseEnter={handleNavMouseEnter}
+                onMouseLeave={handleNavMouseLeave}
+              >
+                {/* Hamburger Button */}
                 <button
                   type="button"
                   onClick={() => setIsNavDropdownOpen(!isNavDropdownOpen)}
@@ -130,46 +149,52 @@ export const Navbar = () => {
                   {isNavDropdownOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </button>
 
-                {/* 🌟 Floating Interactive Dropdown Menu (Exact match to Image 2) 🌟 */}
+                {/* Floating Interactive Dropdown Menu on Hover */}
                 {isNavDropdownOpen && (
-                  <div className="absolute left-0 mt-2.5 w-64 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200/90 py-2.5 z-50 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="px-4 py-1.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
-                      CAMPUS NAVIGATION
-                    </div>
+                  <div
+                    className="absolute left-0 top-full pt-2 w-64 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    onMouseEnter={handleNavMouseEnter}
+                    onMouseLeave={handleNavMouseLeave}
+                  >
+                    <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-200/90 py-2.5">
+                      <div className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        CAMPUS WORKSPACE
+                      </div>
 
-                    <div className="space-y-0.5 px-2 mt-1">
-                      {dropdownLinks.map((link) => {
-                        const Icon = link.icon;
-                        const isActive = location.pathname === link.to;
-                        return (
-                          <Link
-                            key={link.to}
-                            to={link.to}
-                            onClick={() => setIsNavDropdownOpen(false)}
-                            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                              isActive
-                                ? 'bg-blue-50 text-blue-700 font-bold'
-                                : link.highlight
-                                ? 'text-blue-600 hover:bg-blue-50/70 font-semibold'
-                                : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
-                            }`}
-                          >
-                            <Icon
-                              className={`w-4 h-4 flex-shrink-0 ${
-                                isActive ? 'text-blue-600' : link.highlight ? 'text-blue-600' : 'text-slate-400'
+                      <div className="space-y-0.5 px-2 mt-1">
+                        {dropdownLinks.map((link) => {
+                          const Icon = link.icon;
+                          const isActive = location.pathname === link.to;
+                          return (
+                            <Link
+                              key={link.to}
+                              to={link.to}
+                              onClick={() => setIsNavDropdownOpen(false)}
+                              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                                isActive
+                                  ? 'bg-blue-50 text-blue-700 font-bold'
+                                  : link.highlight
+                                  ? 'text-blue-600 hover:bg-blue-50/70 font-semibold'
+                                  : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
                               }`}
-                            />
-                            <span className="truncate">{link.label}</span>
-                          </Link>
-                        );
-                      })}
+                            >
+                              <Icon
+                                className={`w-4 h-4 flex-shrink-0 ${
+                                  isActive ? 'text-blue-600' : link.highlight ? 'text-blue-600' : 'text-slate-400'
+                                }`}
+                              />
+                              <span className="truncate">{link.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Brand Logo & Name: 'CampusFix 2.0' (Matching Image 2) */}
+            {/* Brand Logo & Name: 'CampusFix 2.0' */}
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform">
                 <Zap className="w-4 h-4 fill-white" />
@@ -178,14 +203,14 @@ export const Navbar = () => {
                 <span className="font-extrabold text-lg text-slate-900 tracking-tight">
                   CampusFix
                 </span>
-                <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.2 rounded-md">
+                <span className="text-[10px] font-extrabold text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md">
                   2.0
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* ─── Center: Sleek Wide Search Bar (Matching Image 2) ─── */}
+          {/* ─── Center: Rounded Search Bar ─── */}
           {isAuthenticated && (
             <div className="hidden md:flex items-center flex-1 max-w-xl mx-2">
               <div
@@ -198,19 +223,24 @@ export const Navbar = () => {
             </div>
           )}
 
-          {/* ─── Right: Actions & User Profile (Matching Image 2) ─── */}
-          <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* ─── Right: Actions & User Profile with Hover Dropdown ─── */}
+          <div className="flex items-center gap-2 sm:gap-3">
             {isAuthenticated ? (
               <>
-                {/* Real-time Notification Bell in Circle */}
+                {/* Real-time Notification Bell */}
                 <NotificationBell />
 
-                {/* Quick Demo Switcher / Settings */}
+                {/* Quick Demo Switcher */}
                 <DemoAccountSwitcher />
 
-                {/* User Profile Pill (Avatar + Name Stack + Caret) */}
-                <div className="relative" ref={profileRef}>
+                {/* User Profile Pill with Hover Dropdown */}
+                <div
+                  className="relative"
+                  onMouseEnter={handleProfileMouseEnter}
+                  onMouseLeave={handleProfileMouseLeave}
+                >
                   <button
+                    type="button"
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-full hover:bg-slate-100/90 border border-transparent hover:border-slate-200 transition-all focus:outline-none"
                   >
@@ -230,41 +260,47 @@ export const Navbar = () => {
                     <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${isProfileOpen ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {/* Profile Dropdown Menu */}
+                  {/* Profile Dropdown Menu on Hover */}
                   {isProfileOpen && (
-                    <div className="absolute right-0 mt-2.5 w-56 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] border border-slate-200/90 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                      <div className="px-3 py-2 bg-slate-50 rounded-xl mb-1.5 border border-slate-100">
-                        <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
-                        <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+                    <div
+                      className="absolute right-0 top-full pt-2 w-56 z-50 animate-in fade-in zoom-in-95 duration-150"
+                      onMouseEnter={handleProfileMouseEnter}
+                      onMouseLeave={handleProfileMouseLeave}
+                    >
+                      <div className="bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-200/90 p-2">
+                        <div className="px-3 py-2 bg-slate-50 rounded-xl mb-1.5 border border-slate-100">
+                          <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
+                          <p className="text-[11px] text-slate-500 truncate">{user?.email}</p>
+                        </div>
+
+                        <Link
+                          to={getDashboardLink()}
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors"
+                        >
+                          <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                          Dashboard
+                        </Link>
+
+                        <Link
+                          to="/profile"
+                          onClick={() => setIsProfileOpen(false)}
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors"
+                        >
+                          <UserIcon className="w-4 h-4 text-slate-400" />
+                          Profile Settings
+                        </Link>
+
+                        <div className="my-1 border-t border-slate-100" />
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
                       </div>
-
-                      <Link
-                        to={getDashboardLink()}
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-slate-400" />
-                        Dashboard
-                      </Link>
-
-                      <Link
-                        to="/profile"
-                        onClick={() => setIsProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-blue-600 rounded-xl transition-colors"
-                      >
-                        <UserIcon className="w-4 h-4 text-slate-400" />
-                        Profile Settings
-                      </Link>
-
-                      <div className="my-1 border-t border-slate-100" />
-
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                      </button>
                     </div>
                   )}
                 </div>
