@@ -74,7 +74,7 @@ export const StaffDashboard = () => {
           to="/staff/assigned-issues"
           className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-2xl shadow-lg shadow-amber-500/30 transition-all hover:scale-105 flex-shrink-0"
         >
-          View All Assigned Tasks ({stats.totalAssigned || 0})
+          View All Assigned Works ({stats.totalAssigned || 0})
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
