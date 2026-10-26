@@ -4,6 +4,7 @@ import { suggestDepartmentForCategory } from '../utils/smartAssignment.js';
 import { emitNotification, broadcastIssueEvent } from '../socket/socketHandler.js';
 import { formatEntity } from '../utils/formatHelper.js';
 import { sendIssueResolvedEmail } from '../utils/mailer.js';
+import { chatCache } from '../utils/chatCache.js';
 
 // Common issue include fields for Prisma queries
 const issueIncludes = {
@@ -52,12 +53,25 @@ export const createIssue = async (req, res, next) => {
     } = req.body;
 
     const currentUserId = req.user.id || req.user._id;
+    const chosenBuilding = building || req.body.buildingId;
 
-    if (!title || !description || !category || !building || !floor || !location) {
+    if (!title || !description || !category || !chosenBuilding || !floor || !location) {
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields: title, description, category, building, floor, and location.',
       });
+    }
+
+    // Verify building ID or fallback to first active building
+    let finalBuildingId = chosenBuilding;
+    const existingBuilding = await prisma.building.findUnique({
+      where: { id: chosenBuilding },
+    });
+    if (!existingBuilding) {
+      const fallbackBuilding = await prisma.building.findFirst();
+      if (fallbackBuilding) {
+        finalBuildingId = fallbackBuilding.id;
+      }
     }
 
     const complaintId = await generateComplaintId();
@@ -74,14 +88,14 @@ export const createIssue = async (req, res, next) => {
     const issue = await prisma.issue.create({
       data: {
         complaintId,
-        title,
-        description,
+        title: title.trim(),
+        description: description.trim(),
         category,
         priority: priority || 'Medium',
         status: 'Submitted',
-        buildingId: building,
-        floor,
-        location,
+        buildingId: finalBuildingId,
+        floor: String(floor),
+        location: location.trim(),
         imageUrls: Array.isArray(imageUrls) ? imageUrls : (imageUrls ? [imageUrls] : []),
         reportedById: currentUserId,
         departmentId: assignedDepartmentId || null,
@@ -119,6 +133,9 @@ export const createIssue = async (req, res, next) => {
     });
 
     emitNotification(currentUserId, formatEntity(studentNotif));
+
+    // Invalidate chat cache for reporting student
+    chatCache.invalidateUser(currentUserId);
 
     res.status(201).json({
       success: true,
@@ -487,6 +504,9 @@ export const updateIssueStatus = async (req, res, next) => {
       });
     }
 
+    // Invalidate chat cache for reporting student so AI gives latest status
+    chatCache.invalidateUser(issue.reportedById);
+
     res.status(200).json({
       success: true,
       message: `Complaint status updated to ${status}.`,
@@ -790,6 +810,9 @@ export const reopenIssue = async (req, res, next) => {
       userIds: [issue.assignedToId].filter(Boolean),
       roles: ['admin', 'staff'],
     });
+
+    // Invalidate chat cache for reporting student
+    chatCache.invalidateUser(issue.reportedById);
 
     res.status(200).json({
       success: true,

@@ -1,5 +1,6 @@
 import prisma from '../config/prisma.js';
 import { formatEntity } from '../utils/formatHelper.js';
+import { chatCache } from '../utils/chatCache.js';
 
 const NVIDIA_API_KEY =
   process.env.NVIDIA_API_KEY ||
@@ -7,7 +8,7 @@ const NVIDIA_API_KEY =
 const NVIDIA_MODEL = process.env.NVIDIA_MODEL || 'openai/gpt-oss-20b';
 
 /**
- * @desc    Chat with CampusFix AI Assistant using NVIDIA NIM
+ * @desc    Chat with CampusFix AI Assistant using NVIDIA NIM with Caching
  * @route   POST /api/chat
  * @access  Private
  */
@@ -76,6 +77,41 @@ export const chatWithAssistant = async (req, res, next) => {
         upperMsg.includes(iss.title.toUpperCase()) ||
         (iss.complaintId.split('-')[2] && upperMsg.includes(iss.complaintId.split('-')[2]))
     );
+
+    // ─── Smart Cache Evaluation ───
+    const isUserSpecific =
+      upperMsg.includes('STATUS') ||
+      upperMsg.includes('MY') ||
+      upperMsg.includes('COMPLAINT') ||
+      upperMsg.includes('ISSUE') ||
+      upperMsg.includes('TICKET') ||
+      upperMsg.includes('SRM-') ||
+      matchedIssues.length > 0;
+
+    const ticketStateHash = formattedIssues
+      .map((i) => `${i.id}:${i.status}:${i.assignedTechnician}`)
+      .join(';');
+
+    const cacheKey = chatCache.generateKey({
+      userId: currentUserId,
+      query: message,
+      isUserSpecific,
+      ticketStateHash,
+    });
+
+    // If response was previously generated and tickets have not changed, return from cache immediately
+    const cachedResponse = chatCache.get(cacheKey);
+    if (cachedResponse) {
+      console.log(`⚡ [CHAT CACHE HIT] Served cached response in <1ms for: "${message}"`);
+      return res.status(200).json({
+        success: true,
+        reply: cachedResponse.reply,
+        matchedIssues: cachedResponse.matchedIssues || [],
+        cached: true,
+      });
+    }
+
+    console.log(`🔍 [CHAT CACHE MISS] Querying AI model for: "${message}"`);
 
     // Context summary for system prompt
     const issuesSummary = formattedIssues.length > 0
@@ -185,12 +221,41 @@ CAMPUS MAINTENANCE POLICIES & SLAS:
       }
     }
 
+    const finalMatchedIssues =
+      matchedIssues.length > 0
+        ? matchedIssues
+        : upperMsg.includes('STATUS')
+        ? formattedIssues.slice(0, 3)
+        : [];
+
+    // Store in cache (User ticket queries: 5 min TTL; General campus inquiries: 30 min TTL)
+    if (botReply) {
+      chatCache.set(
+        cacheKey,
+        { reply: botReply, matchedIssues: finalMatchedIssues },
+        isUserSpecific ? 300 : 1800
+      );
+    }
+
     return res.status(200).json({
       success: true,
       reply: botReply,
-      matchedIssues: matchedIssues.length > 0 ? matchedIssues : (upperMsg.includes('STATUS') ? formattedIssues.slice(0, 3) : []),
+      matchedIssues: finalMatchedIssues,
+      cached: false,
     });
   } catch (error) {
     next(error);
   }
+};
+
+/**
+ * @desc    Get Chat Cache metrics and statistics
+ * @route   GET /api/chat/stats
+ * @access  Private
+ */
+export const getChatCacheStats = (req, res) => {
+  res.status(200).json({
+    success: true,
+    cache: chatCache.getStats(),
+  });
 };

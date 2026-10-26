@@ -45,7 +45,8 @@ export const ReportIssuePage = () => {
         const res = await buildingService.getBuildings();
         if (res.success && res.buildings.length > 0) {
           setBuildings(res.buildings);
-          setBuildingId(res.buildings[0]._id);
+          const firstId = res.buildings[0].id || res.buildings[0]._id;
+          setBuildingId(firstId);
           setAvailableFloors(res.buildings[0].floors || ['Ground Floor', '1st Floor', '2nd Floor']);
           setFloor(res.buildings[0].floors?.[0] || 'Ground Floor');
         }
@@ -62,7 +63,7 @@ export const ReportIssuePage = () => {
   // Update floors when building selection changes
   const handleBuildingChange = (bId) => {
     setBuildingId(bId);
-    const selected = buildings.find((b) => b._id === bId);
+    const selected = buildings.find((b) => (b.id === bId || b._id === bId));
     if (selected && selected.floors) {
       setAvailableFloors(selected.floors);
       setFloor(selected.floors[0] || 'Ground Floor');
@@ -92,7 +93,7 @@ export const ReportIssuePage = () => {
 
       if (res.success && res.issue) {
         success(`Complaint #${res.issue.complaintId} submitted successfully!`);
-        navigate(`/student/issues/${res.issue._id}`);
+        navigate(`/student/issues/${res.issue.id || res.issue._id}`);
       }
     } catch (err) {
       error(err.response?.data?.message || 'Failed to submit complaint. Please check fields.');
@@ -186,11 +187,14 @@ export const ReportIssuePage = () => {
                   onChange={(e) => handleBuildingChange(e.target.value)}
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 >
-                  {buildings.map((b) => (
-                    <option key={b._id} value={b._id}>
-                      {b.name} ({b.block})
-                    </option>
-                  ))}
+                  {buildings.map((b) => {
+                    const bVal = b.id || b._id;
+                    return (
+                      <option key={bVal} value={bVal}>
+                        {b.name} {b.block ? `(${b.block})` : ''}
+                      </option>
+                    );
+                  })}
                 </select>
               )}
             </div>

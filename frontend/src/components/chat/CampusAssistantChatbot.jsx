@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   Maximize2,
   Minimize2,
+  Zap,
 } from 'lucide-react';
 
 export const CampusAssistantChatbot = () => {
@@ -28,15 +29,39 @@ export const CampusAssistantChatbot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome',
-      role: 'assistant',
-      content: `Hello ${user?.name ? user.name.split(' ')[0] : 'there'}! 👋 I am **CampusFix AI**, powered by NVIDIA NIM.\n\nI can check the real-time status of your maintenance complaints, explain facility SLAs, or guide you through reporting campus breakdowns. How can I help you today?`,
-      timestamp: new Date(),
-      matchedIssues: [],
-    },
-  ]);
+  const storageKey = `campusfix_chat_${user?.id || 'guest'}`;
+
+  const [messages, setMessages] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(`campusfix_chat_${user?.id || 'guest'}`);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        content: `Hello ${user?.name ? user.name.split(' ')[0] : 'there'}! 👋 I am **CampusFix AI**, powered by NVIDIA NIM.\n\nI can check the real-time status of your maintenance complaints, explain facility SLAs, or guide you through reporting campus breakdowns. How can I help you today?`,
+        timestamp: new Date(),
+        matchedIssues: [],
+      },
+    ];
+  });
+
+  // Persist conversation to sessionStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(messages));
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [messages, storageKey]);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -95,6 +120,7 @@ export const CampusAssistantChatbot = () => {
             content: res.reply,
             timestamp: new Date(),
             matchedIssues: res.matchedIssues || [],
+            cached: Boolean(res.cached),
           },
         ]);
       } else {
@@ -110,6 +136,7 @@ export const CampusAssistantChatbot = () => {
           content: "I'm having a brief issue reaching the AI backend, but you can always check your complaints directly on the **Complaint Log (NAAC/SLA)** page.",
           timestamp: new Date(),
           matchedIssues: [],
+          cached: false,
         },
       ]);
     } finally {
@@ -125,6 +152,11 @@ export const CampusAssistantChatbot = () => {
   };
 
   const handleReset = () => {
+    try {
+      sessionStorage.removeItem(storageKey);
+    } catch (e) {
+      // ignore
+    }
     setMessages([
       {
         id: `welcome-${Date.now()}`,
@@ -132,6 +164,7 @@ export const CampusAssistantChatbot = () => {
         content: `Chat session reset. I'm ready to look up your complaint status or answer any questions about campus maintenance!`,
         timestamp: new Date(),
         matchedIssues: [],
+        cached: false,
       },
     ]);
   };
@@ -332,14 +365,22 @@ export const CampusAssistantChatbot = () => {
                     )}
 
                     <div
-                      className={`text-[9px] mt-1.5 ${
-                        isBot ? 'text-slate-400' : 'text-blue-100 text-right'
+                      className={`text-[9px] mt-1.5 flex items-center gap-1.5 ${
+                        isBot ? 'text-slate-400 justify-between' : 'text-blue-100 justify-end'
                       }`}
                     >
-                      {new Intl.DateTimeFormat('en-IN', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }).format(new Date(msg.timestamp))}
+                      {isBot && msg.cached ? (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200/80">
+                          <Zap className="w-2.5 h-2.5 text-emerald-500 fill-emerald-500" />
+                          Cached &lt;1ms
+                        </span>
+                      ) : <span />}
+                      <span>
+                        {new Intl.DateTimeFormat('en-IN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        }).format(new Date(msg.timestamp))}
+                      </span>
                     </div>
                   </div>
 

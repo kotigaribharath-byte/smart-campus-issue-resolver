@@ -35,8 +35,8 @@ const startServer = async () => {
     // Initialize Socket event handlers
     initSocket(io);
 
-    // 4. Start listening
-    server.listen(PORT, () => {
+    // 4. Start listening on 0.0.0.0 for universal IPv4/IPv6 reachability
+    server.listen(PORT, '0.0.0.0', () => {
       console.log('====================================================');
       console.log(` CampusFix Backend Server running on port ${PORT}`);
       console.log(` Database: PostgreSQL via Prisma ORM`);
