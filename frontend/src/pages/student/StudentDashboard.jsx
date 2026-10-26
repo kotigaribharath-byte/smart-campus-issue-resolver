@@ -16,7 +16,6 @@ import {
   CheckCircle2,
   Wrench,
   Search,
-  RefreshCw,
   Star,
   FileCheck2,
   MapPin,
@@ -122,10 +121,10 @@ export const StudentDashboard = () => {
     <div className="space-y-8 max-w-7xl mx-auto">
       
       {/* ─── 1. Page Header (Decent, Calm, Executive SaaS Style) ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-1">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Campus Facility & Issue Resolution Heatmap
+            Campus Facility & Issue Resolution
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
             Real-time tracking of SRMIST campus facility maintenance, automated technician assignment, and SLA resolution.
@@ -134,15 +133,6 @@ export const StudentDashboard = () => {
 
         {/* Right Action Buttons */}
         <div className="flex items-center gap-3 flex-shrink-0">
-          <button
-            onClick={() => fetchDashboardData(true)}
-            disabled={refreshing}
-            className="p-2.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-600 transition-colors shadow-2xs"
-            title="Refresh Live Data"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
-
           <Link
             to="/student/my-issues"
             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-2xs transition-all"
@@ -217,14 +207,14 @@ export const StudentDashboard = () => {
         />
       </div>
 
-      {/* ─── 3. Heatmap & Category Breakdown ─── */}
+      {/* ─── 3. Facility Category Breakdown & Issue Status ─── */}
       <div className="space-y-4">
         {/* Section Title & Filter Pills */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           <div className="flex items-center gap-2">
             <BarChart2 className="w-5 h-5 text-blue-600" />
             <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-              Facility Category Breakdown & Complaint Heatmap
+              Facility Category Breakdown & Complaints
             </h2>
           </div>
 
