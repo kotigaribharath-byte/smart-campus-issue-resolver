@@ -2,10 +2,11 @@ import nodemailer from 'nodemailer';
 
 // Create transporter
 const createTransporter = () => {
-  const user = process.env.SMTP_USER;
-  const pass = process.env.SMTP_PASS;
+  const user = process.env.SMTP_USER || 'kunamsanthosh992@gmail.com';
+  const rawPass = process.env.SMTP_PASS || 'mptutegromskcuvd';
+  const pass = rawPass.replace(/\s+/g, '');
 
-  if (process.env.SMTP_HOST && process.env.SMTP_PORT) {
+  if (process.env.SMTP_HOST && !process.env.SMTP_HOST.includes('gmail')) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT, 10) || 465,
@@ -17,7 +18,7 @@ const createTransporter = () => {
     });
   }
 
-  // Default to gmail service
+  // Gmail direct service with app password
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
