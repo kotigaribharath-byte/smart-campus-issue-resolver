@@ -138,7 +138,7 @@ export const LoginPage = () => {
       {/* Demo Credentials Quick Fill Chips */}
       <div className="mt-6 pt-5 border-t border-slate-100">
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-2 text-center">
-          Quick Demo Credentials (1-Click Fill)
+          Quick Demo Credentials 
         </span>
         <div className="grid grid-cols-3 gap-1.5">
           <button
