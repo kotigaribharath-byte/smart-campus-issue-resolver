@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import prisma from '../config/prisma.js';
 import { formatEntity } from '../utils/formatHelper.js';
-import { sendVerificationOtpEmail, sendPasswordResetOtpEmail } from '../utils/mailer.js';
+import { sendVerificationOtpEmail, sendPasswordResetOtpEmail, sendLoginCodeEmail } from '../utils/mailer.js';
 
 // Helper to generate 6-digit numeric OTP
 const generateOtp = () => {
@@ -531,7 +531,180 @@ export const login = async (req, res, next) => {
   }
 };
 
+// @desc    Send one-time login code to official SRMIST email
+// @route   POST /api/auth/send-login-code
+// @access  Public
+export const sendLoginCode = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your official SRMIST campus email address.',
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Enforce official email ending with @srmist.edu.in
+    if (!cleanEmail.endsWith('@srmist.edu.in')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Login codes are only sent to official SRMIST campus emails ending with @srmist.edu.in.',
+      });
+    }
+
+    // Rate-limit check (60 seconds cooldown)
+    const recentOtp = await prisma.otpVerification.findFirst({
+      where: {
+        email: cleanEmail,
+        type: 'LOGIN_CODE',
+        createdAt: {
+          gt: new Date(Date.now() - 60 * 1000),
+        },
+      },
+    });
+
+    if (recentOtp) {
+      return res.status(429).json({
+        success: false,
+        message: 'A code was already sent recently. Please wait 60 seconds before requesting a new code.',
+      });
+    }
+
+    // Check if user exists; if not, auto-create a verified student account for SRMIST members
+    let user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+      include: { department: true },
+    });
+
+    if (user && !user.active) {
+      return res.status(403).json({
+        success: false,
+        message: 'Account is deactivated. Please contact campus admin.',
+      });
+    }
+
+    if (!user) {
+      const username = cleanEmail.split('@')[0];
+      const salt = await bcrypt.genSalt(10);
+      const tempPassword = await bcrypt.hash(`SRM_${Date.now()}`, salt);
+
+      user = await prisma.user.create({
+        data: {
+          name: username.replace(/[-_.]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          email: cleanEmail,
+          password: tempPassword,
+          role: 'student',
+          studentId: `RA${Date.now().toString().slice(-8)}`,
+          profileImage: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(username)}&backgroundColor=4f46e5,0ea5e9,10b981`,
+          isEmailVerified: false,
+        },
+        include: { department: true },
+      });
+    }
+
+    const otp = generateOtp();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+    // Clear old LOGIN_CODE OTPs for this email
+    await prisma.otpVerification.deleteMany({
+      where: { email: cleanEmail, type: 'LOGIN_CODE' },
+    });
+
+    await prisma.otpVerification.create({
+      data: {
+        email: cleanEmail,
+        otp,
+        type: 'LOGIN_CODE',
+        expiresAt,
+      },
+    });
+
+    await sendLoginCodeEmail(cleanEmail, otp, user.name);
+
+    res.status(200).json({
+      success: true,
+      email: cleanEmail,
+      message: 'A 6-digit login code has been sent to your @srmist.edu.in email.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify one-time login code and log in
+// @route   POST /api/auth/verify-login-code
+// @access  Public
+export const verifyLoginCode = async (req, res, next) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide both your SRMIST email and 6-digit login code.',
+      });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanCode = code.toString().trim();
+
+    if (!cleanEmail.endsWith('@srmist.edu.in')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Login codes are only valid for @srmist.edu.in official emails.',
+      });
+    }
+
+    // Verify OTP
+    const otpRecord = await prisma.otpVerification.findFirst({
+      where: {
+        email: cleanEmail,
+        otp: cleanCode,
+        type: 'LOGIN_CODE',
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired login code. Please check your email or request a new one.',
+      });
+    }
+
+    // Clean up OTPs
+    await prisma.otpVerification.deleteMany({
+      where: { email: cleanEmail, type: 'LOGIN_CODE' },
+    });
+
+    // Mark email as verified and active
+    const user = await prisma.user.update({
+      where: { email: cleanEmail },
+      data: {
+        isEmailVerified: true,
+        active: true,
+      },
+      include: {
+        department: true,
+      },
+    });
+
+    sendTokenResponse(user, 200, res, `Welcome back, ${user.name}!`);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get currently logged in user
+
 // @route   GET /api/auth/me
 // @access  Private
 export const getMe = async (req, res, next) => {

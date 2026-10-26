@@ -49,9 +49,11 @@ export default function App() {
         <AuthProvider>
           <SocketProvider>
             <Routes>
-              {/* Public Auth Routes */}
+              {/* Full-Page Login Route */}
+              <Route path="/login" element={<LoginPage />} />
+
+              {/* Other Public Auth Routes */}
               <Route element={<AuthLayout />}>
-                <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/verify-email" element={<VerifyEmailPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />

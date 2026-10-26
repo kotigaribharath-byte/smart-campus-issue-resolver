@@ -47,6 +47,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const sendLoginCode = async (email) => {
+    return await authService.sendLoginCode(email);
+  };
+
+  const loginWithCode = async ({ email, code }) => {
+    setLoading(true);
+    try {
+      const data = await authService.verifyLoginCode({ email, code });
+      if (data.user) {
+        setUser(data.user);
+      }
+      return data;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const register = async (userData) => {
     setLoading(true);
     try {
@@ -115,6 +133,8 @@ export const AuthProvider = ({ children }) => {
     isStaff: user?.role === 'staff',
     isAdmin: user?.role === 'admin',
     login,
+    sendLoginCode,
+    loginWithCode,
     register,
     verifyEmail,
     resendOtp,

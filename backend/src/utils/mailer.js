@@ -195,3 +195,85 @@ export const sendPasswordResetOtpEmail = async (toEmail, otp, name = 'User') => 
     return { success: false, error: error.message };
   }
 };
+
+/**
+ * Send 6-digit OTP for official SRMIST login code
+ */
+export const sendLoginCodeEmail = async (toEmail, otp, name = 'SRMIST Member') => {
+  const transporter = createTransporter();
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Your CampusFix Login Code</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; color: #1e293b; }
+        .wrapper { width: 100%; max-width: 580px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; }
+        .header { background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); padding: 36px 32px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { margin: 8px 0 0; font-size: 13px; opacity: 0.9; }
+        .content { padding: 36px 32px; }
+        .greeting { font-size: 16px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+        .message { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+        .otp-box { text-align: center; margin: 28px 0; background: #eff6ff; border: 2px dashed #93c5fd; border-radius: 12px; padding: 20px; }
+        .otp-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #1e40af; font-weight: 700; margin-bottom: 8px; }
+        .otp-code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 38px; font-weight: 800; letter-spacing: 10px; color: #1d4ed8; margin: 0; }
+        .info-pill { display: inline-block; background: #dbeafe; color: #1e40af; padding: 6px 14px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-top: 10px; }
+        .security-note { font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 24px; border-top: 1px solid #f1f5f9; padding-top: 20px; }
+        .footer { background: #f8fafc; padding: 20px 32px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="header">
+          <h1>CampusFix</h1>
+          <p>Official SRMIST Portal Authentication</p>
+        </div>
+        <div class="content">
+          <div class="greeting">Hello ${name},</div>
+          <p class="message">
+            Use the following 6-digit one-time security code to log in to your official SRMIST account on <strong>CampusFix</strong>:
+          </p>
+          <div class="otp-box">
+            <div class="otp-label">One-Time Login Code</div>
+            <div class="otp-code">${otp}</div>
+            <div class="info-pill">⏱ Valid for 10 minutes</div>
+          </div>
+          <p class="message">
+            If you did not initiate this login request, please make sure your account is secure.
+          </p>
+          <div class="security-note">
+            This verification code is strictly intended for <strong>${toEmail}</strong>. Do not share this code with anyone.
+          </div>
+        </div>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} CampusFix & SRMIST Campus Portal. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: getFromHeader(),
+      to: toEmail,
+      subject: `[CampusFix] ${otp} is your SRMIST login code`,
+      html,
+    });
+    console.log(`✉️ Login Code email sent to ${toEmail}: ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending login code email to ${toEmail}:`, error.message);
+    console.log(`\n======================================================`);
+    console.log(`🔑 [CAMPUSFIX SRMIST LOGIN CODE FALLBACK]`);
+    console.log(`📧 Target Email: ${toEmail}`);
+    console.log(`🔢 6-Digit Code: ${otp}`);
+    console.log(`======================================================\n`);
+    return { success: false, error: error.message };
+  }
+};
+

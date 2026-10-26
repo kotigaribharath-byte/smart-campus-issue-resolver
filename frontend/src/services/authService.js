@@ -10,6 +10,21 @@ export const authService = {
     return response.data;
   },
 
+  sendLoginCode: async (email) => {
+    const response = await api.post('/auth/send-login-code', { email });
+    return response.data;
+  },
+
+  verifyLoginCode: async ({ email, code }) => {
+    const response = await api.post('/auth/verify-login-code', { email, code });
+    if (response.data.token) {
+      localStorage.setItem('campusfix_token', response.data.token);
+      localStorage.setItem('campusfix_user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
     // If auto-authenticated (not requiring verification), save token
