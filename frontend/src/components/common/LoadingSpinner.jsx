@@ -90,9 +90,9 @@ export const DashboardSkeleton = () => (
       <div className="w-96 max-w-full h-4 bg-slate-300 rounded-lg animate-shimmer" />
     </div>
 
-    {/* 4 Stat Cards Shimmer */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-      {[1, 2, 3, 4].map((i) => (
+    {/* 3 Stat Cards Shimmer */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+      {[1, 2, 3].map((i) => (
         <div key={i} className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div className="w-20 h-3.5 bg-slate-200 rounded-md animate-shimmer" />

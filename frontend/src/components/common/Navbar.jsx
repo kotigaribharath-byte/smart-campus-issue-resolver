@@ -121,7 +121,7 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-3.5 z-50 w-full px-4 sm:px-6 lg:px-8 select-none">
+    <header className="sticky top-3.5 z-50 w-full px-4 sm:px-6 lg:px-8 mb-6 sm:mb-8 select-none">
       <div className="max-w-7xl mx-auto">
         {/* Floating Navbar Container with Rounded Corners & Soft Drop Shadow */}
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl border border-slate-200/90 shadow-[0_8px_30px_rgba(0,0,0,0.06)] px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">

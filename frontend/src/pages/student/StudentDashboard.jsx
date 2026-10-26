@@ -16,15 +16,9 @@ import {
   CheckCircle2,
   Wrench,
   Search,
-  Filter,
   RefreshCw,
-  Sparkles,
-  ShieldAlert,
   Star,
-  Check,
-  AlertCircle,
   FileCheck2,
-  Radio,
   MapPin,
   Cpu,
   Wifi,
@@ -40,7 +34,7 @@ export const StudentDashboard = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [feedbackModalIssue, setFeedbackModalIssue] = useState(null);
 
-  // Department / Category filter (Matching 'CSE', 'ECE', 'IT' in Image 2)
+  // Department / Category filter
   const [selectedDept, setSelectedDept] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -92,7 +86,6 @@ export const StudentDashboard = () => {
 
   const deptFilters = ['ALL', 'ELECTRICAL', 'PLUMBING', 'HOSTEL', 'AC / HVAC', 'NETWORK'];
 
-  // Helper for category icons
   const getCategoryIcon = (category = '') => {
     const cat = category.toLowerCase();
     if (cat.includes('electr') || cat.includes('power')) return Zap;
@@ -102,7 +95,6 @@ export const StudentDashboard = () => {
     return Cpu;
   };
 
-  // Helper for status pill style (Matching 'ALIGNED' and 'CRITICAL GAP' in Image 2)
   const getStatusBadge = (status = '') => {
     const st = status.toLowerCase();
     if (st === 'resolved' || st === 'closed') {
@@ -127,10 +119,10 @@ export const StudentDashboard = () => {
   };
 
   return (
-    <div className="space-y-7 max-w-7xl mx-auto">
+    <div className="space-y-8 max-w-7xl mx-auto">
       
-      {/* ─── 1. Header Bar (Matching Image 2 Header Exactly) ─── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2">
+      {/* ─── 1. Page Header (Decent, Calm, Executive SaaS Style) ─── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Campus Facility & Issue Resolution Heatmap
@@ -140,7 +132,7 @@ export const StudentDashboard = () => {
           </p>
         </div>
 
-        {/* Right Action Buttons (Matching Image 2) */}
+        {/* Right Action Buttons */}
         <div className="flex items-center gap-3 flex-shrink-0">
           <button
             onClick={() => fetchDashboardData(true)}
@@ -194,16 +186,8 @@ export const StudentDashboard = () => {
         </div>
       )}
 
-      {/* ─── 2. Embedded Stats Row (Matching Image 2 Stat Cards) ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        <StatCard
-          title="Campus Resolution Index"
-          value={stats.totalReported > 0 ? `${Math.round((stats.resolvedCount / stats.totalReported) * 100)}%` : '100%'}
-          subtitle="Across Accredited Facilities"
-          icon={BarChart2}
-          colorScheme="blue"
-          trend="+8% SLA"
-        />
+      {/* ─── 2. Embedded Stats Directly On Screen (No Box/Card Backgrounds) ─── */}
+      <div className="py-6 border-y border-slate-200/90 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-0 bg-transparent">
         <StatCard
           title="Total Logged Issues"
           value={stats.totalReported ?? 0}
@@ -211,6 +195,7 @@ export const StudentDashboard = () => {
           icon={ClipboardList}
           colorScheme="purple"
           trend="Lifetime"
+          showDivider={true}
         />
         <StatCard
           title="Under Active Repair"
@@ -219,6 +204,7 @@ export const StudentDashboard = () => {
           icon={Wrench}
           colorScheme="amber"
           trend="In Progress"
+          showDivider={true}
         />
         <StatCard
           title="Resolved Evidence Proofs"
@@ -227,13 +213,14 @@ export const StudentDashboard = () => {
           icon={CheckCircle2}
           colorScheme="emerald"
           trend="Operational"
+          showDivider={false}
         />
       </div>
 
-      {/* ─── 3. Main Section: Heatmap & Issue Grid (Matching Image 2 Bottom Half) ─── */}
+      {/* ─── 3. Heatmap & Category Breakdown ─── */}
       <div className="space-y-4">
         {/* Section Title & Filter Pills */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
           <div className="flex items-center gap-2">
             <BarChart2 className="w-5 h-5 text-blue-600" />
             <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
@@ -241,7 +228,7 @@ export const StudentDashboard = () => {
             </h2>
           </div>
 
-          {/* Department / Category Pill Selectors (Matching 'CSE', 'ECE', 'IT' in Image 2) */}
+          {/* Department / Category Pill Selectors */}
           <div className="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200/80 text-xs font-bold text-slate-600 overflow-x-auto scrollbar-none">
             {deptFilters.map((dept) => (
               <button
@@ -297,7 +284,7 @@ export const StudentDashboard = () => {
             </div>
           </div>
         ) : (
-          /* Grid of Issue Cards (Matching the Skill Cards in Image 2) */
+          /* Grid of Issue Cards */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {filteredIssues.map((issue) => {
               const CategoryIcon = getCategoryIcon(issue.category);
@@ -337,7 +324,7 @@ export const StudentDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Progress Bar 1: Verification Progress (Matching Image 2) */}
+                    {/* Progress Bar 1 */}
                     <div className="space-y-1 mb-3">
                       <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                         <span>Resolution Progress</span>
@@ -355,7 +342,7 @@ export const StudentDashboard = () => {
                       </div>
                     </div>
 
-                    {/* Progress Bar 2: SLA Dispatch Standard (Matching Image 2) */}
+                    {/* Progress Bar 2 */}
                     <div className="space-y-1 mb-4">
                       <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
                         <span>Technician SLA Dispatch</span>
@@ -372,7 +359,7 @@ export const StudentDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Card Bottom: Location and Relative Time */}
+                  {/* Card Bottom */}
                   <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
                     <span className="flex items-center gap-1 truncate max-w-[160px]">
                       <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
