@@ -10,76 +10,105 @@ export const StatCard = ({
 }) => {
   const colorMap = {
     indigo: {
-      bg: 'bg-indigo-50/70',
-      iconBg: 'bg-indigo-600 text-white',
-      border: 'border-indigo-100',
-      accent: 'text-indigo-600',
+      gradient: 'from-blue-600 to-indigo-600',
+      text: 'text-blue-600',
+      bgGlow: 'bg-blue-500/15',
+      borderHover: 'hover:border-blue-300',
+      bar: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+      pill: 'bg-blue-50 text-blue-700 border-blue-100',
     },
     sky: {
-      bg: 'bg-sky-50/70',
-      iconBg: 'bg-sky-600 text-white',
-      border: 'border-sky-100',
-      accent: 'text-sky-600',
+      gradient: 'from-sky-500 to-cyan-500',
+      text: 'text-sky-600',
+      bgGlow: 'bg-sky-400/15',
+      borderHover: 'hover:border-sky-300',
+      bar: 'bg-gradient-to-r from-sky-500 to-cyan-500',
+      pill: 'bg-sky-50 text-sky-700 border-sky-100',
     },
     amber: {
-      bg: 'bg-amber-50/70',
-      iconBg: 'bg-amber-500 text-white',
-      border: 'border-amber-100',
-      accent: 'text-amber-600',
+      gradient: 'from-amber-500 to-orange-500',
+      text: 'text-amber-600',
+      bgGlow: 'bg-amber-400/15',
+      borderHover: 'hover:border-amber-300',
+      bar: 'bg-gradient-to-r from-amber-500 to-orange-500',
+      pill: 'bg-amber-50 text-amber-700 border-amber-100',
     },
     emerald: {
-      bg: 'bg-emerald-50/70',
-      iconBg: 'bg-emerald-600 text-white',
-      border: 'border-emerald-100',
-      accent: 'text-emerald-600',
+      gradient: 'from-emerald-500 to-teal-500',
+      text: 'text-emerald-600',
+      bgGlow: 'bg-emerald-400/15',
+      borderHover: 'hover:border-emerald-300',
+      bar: 'bg-gradient-to-r from-emerald-500 to-teal-500',
+      pill: 'bg-emerald-50 text-emerald-700 border-emerald-100',
     },
     rose: {
-      bg: 'bg-rose-50/70',
-      iconBg: 'bg-rose-600 text-white',
-      border: 'border-rose-100',
-      accent: 'text-rose-600',
+      gradient: 'from-rose-500 to-pink-500',
+      text: 'text-rose-600',
+      bgGlow: 'bg-rose-400/15',
+      borderHover: 'hover:border-rose-300',
+      bar: 'bg-gradient-to-r from-rose-500 to-pink-500',
+      pill: 'bg-rose-50 text-rose-700 border-rose-100',
     },
     purple: {
-      bg: 'bg-purple-50/70',
-      iconBg: 'bg-purple-600 text-white',
-      border: 'border-purple-100',
-      accent: 'text-purple-600',
+      gradient: 'from-purple-600 to-fuchsia-600',
+      text: 'text-purple-600',
+      bgGlow: 'bg-purple-500/15',
+      borderHover: 'hover:border-purple-300',
+      bar: 'bg-gradient-to-r from-purple-600 to-fuchsia-600',
+      pill: 'bg-purple-50 text-purple-700 border-purple-100',
     },
   };
 
-  const currentTheme = colorMap[colorScheme] || colorMap.indigo;
+  const theme = colorMap[colorScheme] || colorMap.indigo;
 
   return (
     <div
-      className={`relative bg-white rounded-2xl p-5 border ${currentTheme.border} shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden`}
+      className={`group relative bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.12)] ${theme.borderHover} hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-default`}
     >
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-          {title}
-        </span>
-        {Icon && (
-          <div className={`w-10 h-10 rounded-xl ${currentTheme.iconBg} flex items-center justify-center shadow-xs flex-shrink-0`}>
-            <Icon className="w-5 h-5" />
-          </div>
-        )}
-      </div>
+      {/* Ambient corner light glow */}
+      <div
+        className={`absolute -top-10 -right-10 w-28 h-28 rounded-full ${theme.bgGlow} blur-2xl group-hover:scale-125 transition-transform duration-500 pointer-events-none`}
+      />
 
-      <div className="flex items-baseline gap-2">
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          {value ?? 0}
-        </h3>
-        {trend && (
-          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-            {trend}
+      <div>
+        {/* Top Header: Title and Icon */}
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${theme.bar}`} />
+            {title}
           </span>
-        )}
+
+          {Icon && (
+            <div
+              className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${theme.gradient} text-white flex items-center justify-center shadow-md shadow-slate-200 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
+            >
+              <Icon className="w-5 h-5 text-white" />
+            </div>
+          )}
+        </div>
+
+        {/* Value and Trend */}
+        <div className="flex items-baseline gap-2 mt-1">
+          <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+            {value ?? 0}
+          </h3>
+          {trend && (
+            <span
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${theme.pill}`}
+            >
+              {trend}
+            </span>
+          )}
+        </div>
       </div>
 
-      {subtitle && (
-        <p className="text-xs text-slate-400 mt-2 font-medium">
-          {subtitle}
-        </p>
-      )}
+      {/* Subtitle and bottom bar */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+        <p className="truncate font-medium">{subtitle || 'Updated in real-time'}</p>
+      </div>
+
+      {/* Subtle Bottom Accent Indicator */}
+      <div className={`absolute bottom-0 left-0 right-0 h-1 ${theme.bar} opacity-80 group-hover:opacity-100 group-hover:h-1.5 transition-all`} />
     </div>
   );
 };

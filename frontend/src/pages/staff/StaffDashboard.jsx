@@ -6,8 +6,9 @@ import { StatCard } from '../../components/dashboard/StatCard';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { PriorityBadge } from '../../components/common/PriorityBadge';
 import { UpdateStatusModal } from '../../components/issues/UpdateStatusModal';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { DashboardSkeleton } from '../../components/common/LoadingSpinner';
 import { formatRelativeTime } from '../../utils/helpers';
+
 import {
   Wrench,
   CheckCircle2,
@@ -46,7 +47,7 @@ export const StaffDashboard = () => {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner text="Loading technician workspace..." />;
+    return <DashboardSkeleton />;
   }
 
   const stats = data?.stats || {};

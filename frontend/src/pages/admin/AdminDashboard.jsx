@@ -10,8 +10,9 @@ import { StaffLeaderboard } from '../../components/dashboard/StaffLeaderboard';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { PriorityBadge } from '../../components/common/PriorityBadge';
 import { AssignStaffModal } from '../../components/issues/AssignStaffModal';
-import { LoadingSpinner } from '../../components/common/LoadingSpinner';
+import { DashboardSkeleton } from '../../components/common/LoadingSpinner';
 import { formatRelativeTime } from '../../utils/helpers';
+
 import {
   ClipboardList,
   Clock,
@@ -52,7 +53,7 @@ export const AdminDashboard = () => {
   }, []);
 
   if (loading) {
-    return <LoadingSpinner text="Computing MongoDB aggregation analytics..." />;
+    return <DashboardSkeleton />;
   }
 
   const stats = data?.stats || {};
