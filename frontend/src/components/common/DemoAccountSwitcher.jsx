@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
-import { Shield, Wrench, GraduationCap, ChevronDown, UserCheck, Zap } from 'lucide-react';
+import { Shield, Wrench, ChevronDown, UserCheck, Zap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const DemoAccountSwitcher = () => {
@@ -41,16 +41,6 @@ export const DemoAccountSwitcher = () => {
       color: 'text-blue-600 bg-blue-50',
       badge: 'IT Staff',
       redirect: '/staff/dashboard',
-    },
-    {
-      role: 'student',
-      name: 'Aarav Patel (Student)',
-      email: 'student1@campusfix.edu',
-      password: 'Student@123',
-      icon: GraduationCap,
-      color: 'text-emerald-600 bg-emerald-50',
-      badge: 'Student Reporter',
-      redirect: '/student/dashboard',
     },
   ];
 

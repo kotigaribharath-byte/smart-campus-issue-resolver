@@ -128,12 +128,6 @@ export const LandingPage = () => {
               >
                 🔧 Login as Electrician Staff
               </button>
-              <button
-                onClick={() => handleQuickDemoLogin('student')}
-                className="px-3.5 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-semibold rounded-xl transition-all"
-              >
-                🎓 Login as Student
-              </button>
             </div>
           </div>
         </div>
