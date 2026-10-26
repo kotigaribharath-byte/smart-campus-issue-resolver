@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/common/Footer';
+import { CampusAssistantChatbot } from '../components/chat/CampusAssistantChatbot';
 
 export const MainLayout = () => {
   return (
@@ -15,6 +16,9 @@ export const MainLayout = () => {
       </main>
 
       <Footer />
+
+      {/* NVIDIA NIM AI Campus Assistant Chatbot */}
+      <CampusAssistantChatbot />
     </div>
   );
 };

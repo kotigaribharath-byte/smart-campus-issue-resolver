@@ -3,6 +3,7 @@ import { generateComplaintId } from '../utils/idGenerator.js';
 import { suggestDepartmentForCategory } from '../utils/smartAssignment.js';
 import { emitNotification, broadcastIssueEvent } from '../socket/socketHandler.js';
 import { formatEntity } from '../utils/formatHelper.js';
+import { sendIssueResolvedEmail } from '../utils/mailer.js';
 
 // Common issue include fields for Prisma queries
 const issueIncludes = {
@@ -466,6 +467,25 @@ export const updateIssueStatus = async (req, res, next) => {
       userIds: [issue.reportedById, issue.assignedToId].filter(Boolean),
       roles: ['admin', 'staff'],
     });
+
+    // Send email notification to reporting student when issue is marked as RESOLVED
+    if (status === 'Resolved' && previousStatus !== 'Resolved' && updatedIssue.reportedBy?.email) {
+      sendIssueResolvedEmail(
+        updatedIssue.reportedBy.email,
+        updatedIssue.reportedBy.name || 'Student',
+        {
+          complaintId: updatedIssue.complaintId,
+          title: updatedIssue.title,
+          category: updatedIssue.category,
+          location: updatedIssue.location,
+          resolutionNote: comment || 'Issue has been inspected, repaired, and verified operational.',
+          resolvedAt: updatedIssue.resolvedAt || new Date(),
+          technicianName: updatedIssue.assignedTo?.name || req.user.name || 'Campus Maintenance Team',
+        }
+      ).catch((emailErr) => {
+        console.error('Failed to send resolution email notification:', emailErr.message);
+      });
+    }
 
     res.status(200).json({
       success: true,

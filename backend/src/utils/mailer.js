@@ -278,3 +278,143 @@ export const sendLoginCodeEmail = async (toEmail, otp, name = 'SRMIST Member') =
   }
 };
 
+/**
+ * Send email to student when their reported campus issue is marked as RESOLVED
+ */
+export const sendIssueResolvedEmail = async (toEmail, studentName = 'Student', issueData = {}) => {
+  const transporter = createTransporter();
+
+  const {
+    complaintId = 'SRM-ISSUE',
+    title = 'Campus Facility Issue',
+    category = 'General Maintenance',
+    location = 'SRMIST Campus',
+    resolutionNote = 'The technician has finished repairing the issue and verified normal operational status.',
+    resolvedAt = new Date(),
+    technicianName = 'Campus Maintenance Team',
+  } = issueData;
+
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const myIssuesUrl = `${clientUrl}/student/my-issues`;
+
+  const formattedDate = new Intl.DateTimeFormat('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(resolvedAt));
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Your Campus Issue Has Been Resolved</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; color: #1e293b; }
+        .wrapper { width: 100%; max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 18px; overflow: hidden; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0; }
+        .header { background: linear-gradient(135deg, #059669 0%, #10b981 100%); padding: 36px 32px; text-align: center; color: #ffffff; }
+        .check-badge { width: 56px; height: 56px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; line-height: 56px; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .header p { margin: 8px 0 0; font-size: 13px; opacity: 0.95; }
+        .content { padding: 36px 32px; }
+        .greeting { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+        .message { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+        .ticket-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 24px 0; }
+        .ticket-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 14px; }
+        .ticket-id { font-family: monospace; font-size: 14px; font-weight: 700; color: #059669; }
+        .status-badge { display: inline-block; background: #d1fae5; color: #065f46; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field-row { margin-bottom: 10px; font-size: 13px; }
+        .field-label { color: #64748b; font-weight: 600; width: 110px; display: inline-block; }
+        .field-value { color: #0f172a; font-weight: 600; }
+        .note-box { background: #ecfdf5; border-left: 4px solid #10b981; border-radius: 6px; padding: 12px 16px; margin: 18px 0; font-size: 13px; color: #065f46; }
+        .cta-container { text-align: center; margin: 32px 0 20px; }
+        .btn-cta { display: inline-block; background: #059669; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 12px; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.3); }
+        .footer { background: #f8fafc; padding: 22px 32px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="header">
+          <div class="check-badge">&#10003;</div>
+          <h1>Issue Marked as Resolved!</h1>
+          <p>SRMIST Smart Campus Maintenance Notification</p>
+        </div>
+        <div class="content">
+          <div class="greeting">Hello ${studentName},</div>
+          <p class="message">
+            Good news! The campus maintenance ticket you reported has been inspected, repaired, and verified as operational by our facility team.
+          </p>
+
+          <div class="ticket-card">
+            <div class="ticket-header">
+              <span class="ticket-id">Ticket #${complaintId}</span>
+              <span class="status-badge">RESOLVED</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Issue:</span>
+              <span class="field-value">${title}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Category:</span>
+              <span class="field-value">${category}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Location:</span>
+              <span class="field-value">${location}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Resolved On:</span>
+              <span class="field-value">${formattedDate}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Technician:</span>
+              <span class="field-value">${technicianName}</span>
+            </div>
+            
+            ${resolutionNote ? `
+              <div class="note-box">
+                <strong>Technician Remark:</strong> ${resolutionNote}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="cta-container">
+            <a href="${myIssuesUrl}" class="btn-cta" target="_blank">
+              Rate Resolution & View Evidence &#8594;
+            </a>
+          </div>
+
+          <p class="message" style="font-size: 12px; text-align: center; color: #64748b; margin-top: 20px;">
+            Your feedback directly impacts campus service SLA ratings. If the problem persists or is incomplete, you can also reopen this ticket from your dashboard.
+          </p>
+        </div>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} CampusFix SRMIST. All rights reserved.
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: getFromHeader(),
+      to: toEmail,
+      subject: `[Resolved] Ticket #${complaintId}: ${title}`,
+      html,
+    });
+    console.log(`✉️ Issue resolution email successfully sent to ${toEmail} (Ticket ${complaintId}): ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending issue resolved email to ${toEmail}:`, error.message);
+    console.log(`\n======================================================`);
+    console.log(`🎉 [CAMPUSFIX DEV RESOLUTION NOTIFICATION FALLBACK]`);
+    console.log(`📧 Student Email:    ${toEmail}`);
+    console.log(`🎫 Complaint ID:     ${complaintId}`);
+    console.log(`📋 Issue:            ${title}`);
+    console.log(`✅ Status:           RESOLVED`);
+    console.log(`======================================================\n`);
+    return { success: false, error: error.message };
+  }
+};
+
