@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowUpRight } from 'lucide-react';
 
 export const StatCard = ({
   title,
@@ -6,109 +7,95 @@ export const StatCard = ({
   subtitle,
   icon: Icon,
   trend,
-  colorScheme = 'indigo', // indigo, sky, amber, emerald, rose, purple
+  colorScheme = 'blue', // blue, purple, emerald, amber
 }) => {
   const colorMap = {
-    indigo: {
-      gradient: 'from-blue-600 to-indigo-600',
-      text: 'text-blue-600',
-      bgGlow: 'bg-blue-500/15',
-      borderHover: 'hover:border-blue-300',
-      bar: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+    blue: {
+      iconBg: 'bg-blue-50 text-blue-600',
       pill: 'bg-blue-50 text-blue-700 border-blue-100',
-    },
-    sky: {
-      gradient: 'from-sky-500 to-cyan-500',
-      text: 'text-sky-600',
-      bgGlow: 'bg-sky-400/15',
-      borderHover: 'hover:border-sky-300',
-      bar: 'bg-gradient-to-r from-sky-500 to-cyan-500',
-      pill: 'bg-sky-50 text-sky-700 border-sky-100',
-    },
-    amber: {
-      gradient: 'from-amber-500 to-orange-500',
-      text: 'text-amber-600',
-      bgGlow: 'bg-amber-400/15',
-      borderHover: 'hover:border-amber-300',
-      bar: 'bg-gradient-to-r from-amber-500 to-orange-500',
-      pill: 'bg-amber-50 text-amber-700 border-amber-100',
-    },
-    emerald: {
-      gradient: 'from-emerald-500 to-teal-500',
-      text: 'text-emerald-600',
-      bgGlow: 'bg-emerald-400/15',
-      borderHover: 'hover:border-emerald-300',
-      bar: 'bg-gradient-to-r from-emerald-500 to-teal-500',
-      pill: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-    },
-    rose: {
-      gradient: 'from-rose-500 to-pink-500',
-      text: 'text-rose-600',
-      bgGlow: 'bg-rose-400/15',
-      borderHover: 'hover:border-rose-300',
-      bar: 'bg-gradient-to-r from-rose-500 to-pink-500',
-      pill: 'bg-rose-50 text-rose-700 border-rose-100',
+      arrowBg: 'text-blue-600 bg-blue-50/80 group-hover:bg-blue-600 group-hover:text-white',
+      barColor: '#3b82f6',
+      bars: [40, 65, 30, 85, 55, 95, 75],
     },
     purple: {
-      gradient: 'from-purple-600 to-fuchsia-600',
-      text: 'text-purple-600',
-      bgGlow: 'bg-purple-500/15',
-      borderHover: 'hover:border-purple-300',
-      bar: 'bg-gradient-to-r from-purple-600 to-fuchsia-600',
+      iconBg: 'bg-purple-50 text-purple-600',
       pill: 'bg-purple-50 text-purple-700 border-purple-100',
+      arrowBg: 'text-purple-600 bg-purple-50/80 group-hover:bg-purple-600 group-hover:text-white',
+      barColor: '#8b5cf6',
+      bars: [30, 50, 70, 45, 90, 60, 80],
+    },
+    emerald: {
+      iconBg: 'bg-emerald-50 text-emerald-600',
+      pill: 'bg-emerald-50 text-emerald-700 border-emerald-100',
+      arrowBg: 'text-emerald-600 bg-emerald-50/80 group-hover:bg-emerald-600 group-hover:text-white',
+      barColor: '#10b981',
+      bars: [50, 60, 40, 75, 85, 65, 95],
+    },
+    amber: {
+      iconBg: 'bg-amber-50 text-amber-600',
+      pill: 'bg-amber-50 text-amber-700 border-amber-100',
+      arrowBg: 'text-amber-600 bg-amber-50/80 group-hover:bg-amber-600 group-hover:text-white',
+      barColor: '#f59e0b',
+      bars: [45, 70, 55, 60, 40, 80, 65],
     },
   };
 
-  const theme = colorMap[colorScheme] || colorMap.indigo;
+  const theme = colorMap[colorScheme] || colorMap.blue;
 
   return (
-    <div
-      className={`group relative bg-white rounded-2xl p-5 sm:p-6 border border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_12px_28px_-6px_rgba(0,0,0,0.12)] ${theme.borderHover} hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-default`}
-    >
-      {/* Ambient corner light glow */}
-      <div
-        className={`absolute -top-10 -right-10 w-28 h-28 rounded-full ${theme.bgGlow} blur-2xl group-hover:scale-125 transition-transform duration-500 pointer-events-none`}
-      />
+    <div className="group relative bg-white rounded-2xl p-5 border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-slate-300 transition-all duration-200 flex items-center justify-between overflow-hidden cursor-default">
+      
+      {/* Top-Right Arrow Action (Matching Image 2) */}
+      <div className={`absolute top-3.5 right-3.5 p-1 rounded-lg ${theme.arrowBg} transition-all duration-200`}>
+        <ArrowUpRight className="w-3.5 h-3.5" />
+      </div>
 
-      <div>
-        {/* Top Header: Title and Icon */}
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${theme.bar}`} />
+      {/* Left: Icon Squircle + Metric Content */}
+      <div className="flex items-start gap-4">
+        {Icon && (
+          <div className={`w-12 h-12 rounded-2xl ${theme.iconBg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+            <Icon className="w-6 h-6 stroke-[1.8]" />
+          </div>
+        )}
+
+        <div className="space-y-1">
+          <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block">
             {title}
           </span>
 
-          {Icon && (
-            <div
-              className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${theme.gradient} text-white flex items-center justify-center shadow-md shadow-slate-200 group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}
-            >
-              <Icon className="w-5 h-5 text-white" />
-            </div>
-          )}
-        </div>
+          <div className="flex items-center gap-2">
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+              {value ?? 0}
+            </h3>
+            {trend && (
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${theme.pill}`}>
+                {trend}
+              </span>
+            )}
+          </div>
 
-        {/* Value and Trend */}
-        <div className="flex items-baseline gap-2 mt-1">
-          <h3 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-            {value ?? 0}
-          </h3>
-          {trend && (
-            <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${theme.pill}`}
-            >
-              {trend}
-            </span>
+          {subtitle && (
+            <p className="text-[11px] text-slate-400 font-medium truncate max-w-[150px]">
+              {subtitle}
+            </p>
           )}
         </div>
       </div>
 
-      {/* Subtitle and bottom bar */}
-      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-        <p className="truncate font-medium">{subtitle || 'Updated in real-time'}</p>
+      {/* Right: Embedded Vertical Mini-Bar Chart (Matching Image 2) */}
+      <div className="hidden sm:flex items-end gap-1 h-10 pr-2 pl-3 select-none">
+        {theme.bars.map((height, idx) => (
+          <div
+            key={idx}
+            className="w-1.5 rounded-t-sm transition-all duration-300 group-hover:opacity-100"
+            style={{
+              height: `${height}%`,
+              backgroundColor: theme.barColor,
+              opacity: 0.6 + (idx / theme.bars.length) * 0.4,
+            }}
+          />
+        ))}
       </div>
-
-      {/* Subtle Bottom Accent Indicator */}
-      <div className={`absolute bottom-0 left-0 right-0 h-1 ${theme.bar} opacity-80 group-hover:opacity-100 group-hover:h-1.5 transition-all`} />
     </div>
   );
 };
