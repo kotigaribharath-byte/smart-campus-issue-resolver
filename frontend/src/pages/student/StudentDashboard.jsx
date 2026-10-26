@@ -24,6 +24,9 @@ import {
   Zap,
   Droplets,
   Wind,
+  User,
+  Building,
+  AlertCircle,
 } from 'lucide-react';
 
 export const StudentDashboard = () => {
@@ -85,34 +88,114 @@ export const StudentDashboard = () => {
 
   const deptFilters = ['ALL', 'ELECTRICAL', 'PLUMBING', 'HOSTEL', 'AC / HVAC', 'NETWORK'];
 
-  const getCategoryIcon = (category = '') => {
+  const getCategoryTheme = (category = '') => {
     const cat = category.toLowerCase();
-    if (cat.includes('electr') || cat.includes('power')) return Zap;
-    if (cat.includes('plumb') || cat.includes('water')) return Droplets;
-    if (cat.includes('ac') || cat.includes('air') || cat.includes('hvac')) return Wind;
-    if (cat.includes('net') || cat.includes('wi-fi') || cat.includes('wifi')) return Wifi;
-    return Cpu;
+    if (cat.includes('electr') || cat.includes('power')) {
+      return {
+        icon: Zap,
+        bg: 'bg-amber-500/10',
+        text: 'text-amber-600',
+        border: 'border-amber-200/80',
+        gradient: 'from-amber-500 via-orange-400 to-amber-500',
+        tagBg: 'bg-amber-50 text-amber-700 border-amber-200/80',
+      };
+    }
+    if (cat.includes('plumb') || cat.includes('water')) {
+      return {
+        icon: Droplets,
+        bg: 'bg-sky-500/10',
+        text: 'text-sky-600',
+        border: 'border-sky-200/80',
+        gradient: 'from-sky-500 via-blue-400 to-sky-500',
+        tagBg: 'bg-sky-50 text-sky-700 border-sky-200/80',
+      };
+    }
+    if (cat.includes('ac') || cat.includes('air') || cat.includes('hvac')) {
+      return {
+        icon: Wind,
+        bg: 'bg-teal-500/10',
+        text: 'text-teal-600',
+        border: 'border-teal-200/80',
+        gradient: 'from-teal-500 via-emerald-400 to-teal-500',
+        tagBg: 'bg-teal-50 text-teal-700 border-teal-200/80',
+      };
+    }
+    if (cat.includes('net') || cat.includes('wi-fi') || cat.includes('wifi')) {
+      return {
+        icon: Wifi,
+        bg: 'bg-indigo-500/10',
+        text: 'text-indigo-600',
+        border: 'border-indigo-200/80',
+        gradient: 'from-indigo-500 via-violet-400 to-indigo-500',
+        tagBg: 'bg-indigo-50 text-indigo-700 border-indigo-200/80',
+      };
+    }
+    return {
+      icon: Cpu,
+      bg: 'bg-slate-500/10',
+      text: 'text-slate-700',
+      border: 'border-slate-200/80',
+      gradient: 'from-slate-600 via-slate-400 to-slate-600',
+      tagBg: 'bg-slate-100 text-slate-700 border-slate-200/80',
+    };
   };
 
-  const getStatusBadge = (status = '') => {
+  const renderPriorityPill = (priority) => {
+    const p = (priority || 'Medium').toLowerCase();
+    if (p === 'critical') {
+      return (
+        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-200/80">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+          Critical
+        </span>
+      );
+    }
+    if (p === 'high') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+          High
+        </span>
+      );
+    }
+    if (p === 'medium') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/80">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          Medium
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200/80">
+        <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+        Low
+      </span>
+    );
+  };
+
+  const renderStatusPill = (status = '') => {
     const st = status.toLowerCase();
     if (st === 'resolved' || st === 'closed') {
       return (
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-          RESOLVED
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs">
+          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+          Resolved
         </span>
       );
     }
     if (st === 'in progress') {
       return (
-        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80">
-          IN REPAIR
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/80 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+          In Repair
         </span>
       );
     }
     return (
-      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200/80">
-        DISPATCH PENDING
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/80 shadow-2xs">
+        <Clock className="w-3 h-3 text-sky-600" />
+        Dispatch Pending
       </span>
     );
   };
@@ -274,88 +357,110 @@ export const StudentDashboard = () => {
             </div>
           </div>
         ) : (
-          /* Grid of Issue Cards */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          /* Embedded List of Issues (No Card Boxes, Data Directly on Screen) */
+          <div className="divide-y divide-slate-200/70 border-y border-slate-200/80">
             {filteredIssues.map((issue) => {
-              const CategoryIcon = getCategoryIcon(issue.category);
+              const theme = getCategoryTheme(issue.category);
+              const CategoryIcon = theme.icon;
               const isResolved = issue.status === 'Resolved' || issue.status === 'Closed';
               const isInProgress = issue.status === 'In Progress';
 
               return (
                 <div
                   key={issue._id || issue.id}
-                  className="group bg-white rounded-2xl border border-slate-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-slate-300 transition-all flex flex-col justify-between"
+                  className="group py-4 px-2 hover:bg-slate-50/80 rounded-xl transition-all duration-150 flex flex-col lg:flex-row lg:items-center justify-between gap-4"
                 >
-                  <div>
-                    {/* Card Top: Category Icon + Title + Status Badge + Arrow */}
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center flex-shrink-0">
-                          <CategoryIcon className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="text-sm font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
-                            {issue.title}
-                          </h4>
-                          <span className="text-[10px] font-mono text-slate-400 font-semibold block">
-                            #{issue.complaintId} • {issue.category}
-                          </span>
-                        </div>
+                  {/* Left: Icon, Ticket ID, Title, Description, Location */}
+                  <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                    <div
+                      className={`w-10 h-10 rounded-xl ${theme.bg} ${theme.text} border ${theme.border} flex items-center justify-center flex-shrink-0 mt-0.5 shadow-2xs`}
+                    >
+                      <CategoryIcon className="w-5 h-5" />
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-1">
+                      {/* Meta Badges Row */}
+                      <div className="flex items-center gap-2 flex-wrap text-xs">
+                        <span className="font-mono text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">
+                          #{issue.complaintId}
+                        </span>
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-md border ${theme.tagBg}`}>
+                          {issue.category}
+                        </span>
+                        <span className="text-slate-300">•</span>
+                        <span className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+                          <MapPin className="w-3 h-3 text-slate-400" />
+                          {issue.building?.name || 'Main Campus'}
+                          {issue.location && <span>• {issue.location}</span>}
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {getStatusBadge(issue.status)}
+                      {/* Title & Description */}
+                      <div>
                         <Link
                           to={`/student/issues/${issue._id || issue.id}`}
-                          className="p-1 rounded-md text-blue-600 hover:bg-blue-50 transition-colors"
+                          className="font-bold text-slate-900 text-sm sm:text-base group-hover:text-blue-600 transition-colors inline-flex items-center gap-1.5"
                         >
-                          <ArrowUpRight className="w-3.5 h-3.5" />
+                          <span>{issue.title}</span>
+                          <ArrowUpRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-blue-600" />
                         </Link>
-                      </div>
-                    </div>
-
-                    {/* Progress Bar 1 */}
-                    <div className="space-y-1 mb-3">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                        <span>Resolution Progress</span>
-                        <span className="text-slate-900 font-bold">
-                          {isResolved ? '100%' : isInProgress ? '65%' : '25%'}
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            isResolved ? 'bg-emerald-500' : isInProgress ? 'bg-amber-500' : 'bg-blue-600'
-                          }`}
-                          style={{ width: isResolved ? '100%' : isInProgress ? '65%' : '25%' }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Progress Bar 2 */}
-                    <div className="space-y-1 mb-4">
-                      <div className="flex items-center justify-between text-xs font-semibold text-slate-600">
-                        <span>Technician SLA Dispatch</span>
-                        <span className="text-slate-900 font-bold">
-                          {isResolved ? '100%' : isInProgress ? '85%' : '40%'}
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-slate-900 rounded-full transition-all duration-500"
-                          style={{ width: isResolved ? '100%' : isInProgress ? '85%' : '40%' }}
-                        />
+                        {issue.description && (
+                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 max-w-2xl">
+                            {issue.description}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Bottom */}
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="flex items-center gap-1 truncate max-w-[160px]">
-                      <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
-                      {issue.building?.name || 'Campus'} • {issue.location}
-                    </span>
-                    <span>{formatRelativeTime(issue.updatedAt || issue.createdAt)}</span>
+                  {/* Middle: Visual Lifecycle Pipeline */}
+                  <div className="flex items-center gap-6 lg:px-4 lg:border-x lg:border-slate-100 flex-shrink-0">
+                    <div className="space-y-1.5 min-w-[200px]">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-slate-400 font-medium">Stage</span>
+                        <span
+                          className={`font-bold ${
+                            isResolved ? 'text-emerald-700' : isInProgress ? 'text-amber-700' : 'text-blue-700'
+                          }`}
+                        >
+                          {isResolved ? 'Resolved' : isInProgress ? 'In Repair' : 'Logged & Dispatched'}
+                        </span>
+                      </div>
+
+                      {/* Connected Stepper Line */}
+                      <div className="grid grid-cols-3 gap-1 w-full">
+                        <div className={`h-1.5 rounded-full ${isResolved || isInProgress ? 'bg-emerald-500' : 'bg-blue-600'}`} />
+                        <div
+                          className={`h-1.5 rounded-full ${
+                            isResolved ? 'bg-emerald-500' : isInProgress ? 'bg-amber-500 animate-pulse' : 'bg-slate-200'
+                          }`}
+                        />
+                        <div className={`h-1.5 rounded-full ${isResolved ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                      </div>
+
+                      <div className="text-[10px] text-slate-400 flex items-center justify-between">
+                        <span>
+                          {issue.assignedTo?.name ? `Tech: ${issue.assignedTo.name}` : 'Auto-dispatching'}
+                        </span>
+                        <span>{formatRelativeTime(issue.updatedAt || issue.createdAt)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Badges & View Action */}
+                  <div className="flex items-center justify-between lg:justify-end gap-3 flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      {renderStatusPill(issue.status)}
+                      {renderPriorityPill(issue.priority)}
+                    </div>
+
+                    <Link
+                      to={`/student/issues/${issue._id || issue.id}`}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-blue-600 hover:text-white text-slate-700 text-xs font-bold rounded-xl transition-all inline-flex items-center gap-1 group/btn shadow-2xs"
+                    >
+                      <span>View</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
+                    </Link>
                   </div>
                 </div>
               );
