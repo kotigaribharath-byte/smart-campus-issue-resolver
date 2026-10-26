@@ -104,8 +104,8 @@ export const StaffDashboard = () => {
         </div>
       )}
 
-      {/* Metric Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      {/* Metric Strip Directly Embedded on Screen */}
+      <div className="py-5 border-y border-slate-200/90 grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 bg-transparent">
         <StatCard
           title="Total Assigned"
           value={stats.totalAssigned}

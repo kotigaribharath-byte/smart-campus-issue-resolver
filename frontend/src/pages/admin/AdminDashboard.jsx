@@ -74,7 +74,7 @@ export const AdminDashboard = () => {
             Campus Facility Operations & Analytics
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl leading-relaxed">
-            Real-time MongoDB aggregation of campus complaints, automated technician workloads, and resolution metrics.
+            Real-time campus complaint telemetry, automated technician workloads, and resolution metrics.
           </p>
         </div>
 
@@ -96,8 +96,8 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Primary KPI Metric Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Primary KPI Metric Strip Directly Embedded on Screen */}
+      <div className="py-5 border-y border-slate-200/90 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/80 bg-transparent">
         <StatCard
           title="Total Issues"
           value={stats.totalIssues}
