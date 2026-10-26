@@ -418,3 +418,132 @@ export const sendIssueResolvedEmail = async (toEmail, studentName = 'Student', i
   }
 };
 
+/**
+ * Send welcome & credential email when a maintenance technician is onboarded
+ */
+export const sendTechnicianWelcomeEmail = async ({
+  toEmail,
+  name = 'Technician',
+  staffId = 'STF-GEN',
+  departmentName = 'General Maintenance',
+  temporaryPassword = 'Staff@123',
+  phone = '',
+}) => {
+  const transporter = createTransporter();
+  const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/login`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome to CampusFix Maintenance Fleet</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 0; color: #1e293b; }
+        .wrapper { width: 100%; max-width: 580px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0; }
+        .header { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 36px 32px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(147, 197, 253, 0.3); padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .content { padding: 36px 32px; }
+        .greeting { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+        .message { font-size: 14px; line-height: 1.6; color: #475569; margin-bottom: 24px; }
+        .details-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin: 24px 0; }
+        .field-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .field-row:last-child { border-bottom: none; }
+        .field-label { color: #64748b; font-weight: 600; }
+        .field-value { color: #0f172a; font-weight: 700; }
+        .cred-highlight { font-family: monospace; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 6px; }
+        .btn-cta { display: block; text-align: center; background: #2563eb; color: #ffffff !important; padding: 14px 28px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; margin: 28px 0 16px; }
+        .notice-box { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px 16px; border-radius: 4px; font-size: 12px; color: #1e40af; line-height: 1.5; margin-top: 20px; }
+        .footer { background: #f8fafc; padding: 20px 32px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; }
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="header">
+          <div class="badge">SRMIST Campus Operations</div>
+          <h1>CampusFix</h1>
+          <p style="margin: 6px 0 0; font-size: 13px; color: #94a3b8;">Technician Fleet Onboarding Confirmation</p>
+        </div>
+        <div class="content">
+          <div class="greeting">Welcome to the Team, ${name}!</div>
+          <p class="message">
+            You have been officially onboarded as a <strong>Maintenance Technician</strong> in the CampusFix facility dispatch system. Your account has been provisioned and is ready for automated work order assignments.
+          </p>
+
+          <div class="details-card">
+            <div class="field-row">
+              <span class="field-label">Staff ID:</span>
+              <span class="field-value">${staffId}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Department / Trade:</span>
+              <span class="field-value">${departmentName}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Official Email:</span>
+              <span class="field-value">${toEmail}</span>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Initial Password:</span>
+              <span class="field-value"><code class="cred-highlight">${temporaryPassword}</code></span>
+            </div>
+            ${phone ? `
+            <div class="field-row">
+              <span class="field-label">Contact Phone:</span>
+              <span class="field-value">${phone}</span>
+            </div>
+            ` : ''}
+            <div class="field-row">
+              <span class="field-label">Duty Status:</span>
+              <span class="field-value" style="color: #059669;">Active On-Duty</span>
+            </div>
+          </div>
+
+          <a href="${loginUrl}" class="btn-cta" target="_blank">
+            Access Technician Work Order Portal &#8594;
+          </a>
+
+          <div class="notice-box">
+            <strong>Next Steps:</strong>
+            <ul style="margin: 6px 0 0; padding-left: 18px;">
+              <li>Log in using your official email and temporary password above.</li>
+              <li>View your live assigned tasks under <strong>Assigned Work Orders</strong>.</li>
+              <li>Upload photographic resolution proof when repairs are completed.</li>
+              <li>For security, please update your password after your initial login.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer">
+          &copy; ${new Date().getFullYear()} CampusFix &bull; SRM Institute of Science and Technology
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const info = await transporter.sendMail({
+      from: getFromHeader(),
+      to: toEmail,
+      subject: `[CampusFix] Welcome to Maintenance Fleet - Staff Account Created (${staffId})`,
+      html,
+    });
+    console.log(`✉️ Technician onboarding email successfully sent to ${toEmail} (${staffId}): ${info.messageId}`);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error(`❌ Error sending technician onboarding email to ${toEmail}:`, error.message);
+    console.log(`\n======================================================`);
+    console.log(`🔧 [CAMPUSFIX TECHNICIAN ONBOARDING NOTIFICATION FALLBACK]`);
+    console.log(`📧 Technician Email: ${toEmail}`);
+    console.log(`👤 Name:             ${name}`);
+    console.log(`🏷️ Staff ID:         ${staffId}`);
+    console.log(`🏢 Department:       ${departmentName}`);
+    console.log(`🔑 Initial Password: ${temporaryPassword}`);
+    console.log(`======================================================\n`);
+    return { success: false, error: error.message };
+  }
+};
+
+

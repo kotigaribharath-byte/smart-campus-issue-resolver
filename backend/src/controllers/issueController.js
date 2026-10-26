@@ -535,6 +535,13 @@ export const assignIssue = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Issue not found' });
     }
 
+    if (issue.status === 'Resolved' || issue.status === 'Closed') {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot assign or reassign staff because this issue is already ${issue.status}.`,
+      });
+    }
+
     let staff = null;
     if (staffId) {
       staff = await prisma.user.findUnique({

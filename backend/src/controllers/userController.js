@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import prisma from '../config/prisma.js';
 import { formatEntity } from '../utils/formatHelper.js';
+import { sendTechnicianWelcomeEmail } from '../utils/mailer.js';
 
 // @desc    Get all users with role filtering & search
 // @route   GET /api/users
@@ -114,6 +115,18 @@ export const createUser = async (req, res, next) => {
     });
 
     const { password: _, ...safeUser } = user;
+
+    // Send onboarding credentials email to technician
+    if (user.role === 'staff') {
+      sendTechnicianWelcomeEmail({
+        toEmail: user.email,
+        name: user.name,
+        staffId: user.staffId || 'STF-GEN',
+        departmentName: user.department?.name || 'General Maintenance',
+        temporaryPassword: password || 'Staff@123',
+        phone: user.phone || '',
+      }).catch((err) => console.error('Failed to dispatch technician onboarding email:', err));
+    }
 
     res.status(201).json({
       success: true,

@@ -216,13 +216,15 @@ export const AllIssuesPage = () => {
                       {formatRelativeTime(issue.createdAt)}
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-1.5">
-                      <button
-                        onClick={() => setAssignIssue(issue)}
-                        className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition-colors"
-                        title="Dispatch / Reassign Staff"
-                      >
-                        Dispatch
-                      </button>
+                      {issue.status !== 'Resolved' && issue.status !== 'Closed' && (
+                        <button
+                          onClick={() => setAssignIssue(issue)}
+                          className="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition-colors"
+                          title="Dispatch / Reassign Staff"
+                        >
+                          Dispatch
+                        </button>
+                      )}
                       <Link
                         to={`/admin/issues/${issue._id}`}
                         className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 inline-block transition-colors"

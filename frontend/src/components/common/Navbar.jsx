@@ -82,6 +82,7 @@ export const Navbar = () => {
       return [
         { label: 'Overview Dashboard', to: '/admin/dashboard', icon: LayoutDashboard },
         { label: 'All Campus Complaints', to: '/admin/issues', icon: ClipboardList },
+        { label: 'Onboard Technicians', to: '/admin/technicians', icon: Wrench },
         { label: 'User Directory', to: '/admin/users', icon: Users },
         { label: 'Departments & Wings', to: '/admin/departments', icon: Layers },
         { label: 'Buildings & Rooms', to: '/admin/buildings', icon: Building2 },

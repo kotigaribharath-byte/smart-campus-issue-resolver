@@ -306,12 +306,18 @@ export const AdminIssueDetailPage = () => {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
               Assigned Technician
             </span>
-            <button
-              onClick={() => setIsAssignOpen(true)}
-              className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
-            >
-              {issue.assignedTo ? 'Change' : 'Assign'}
-            </button>
+            {issue.status === 'Resolved' || issue.status === 'Closed' ? (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                Resolution Verified
+              </span>
+            ) : (
+              <button
+                onClick={() => setIsAssignOpen(true)}
+                className="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+              >
+                {issue.assignedTo ? 'Change' : 'Assign'}
+              </button>
+            )}
           </div>
           {issue.assignedTo ? (
             <div className="flex items-center gap-3">

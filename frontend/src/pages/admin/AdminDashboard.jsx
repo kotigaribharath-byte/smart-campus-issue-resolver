@@ -27,6 +27,7 @@ import {
   ArrowRight,
   ShieldCheck,
   Zap,
+  Wrench,
 } from 'lucide-react';
 
 export const AdminDashboard = () => {
@@ -80,8 +81,15 @@ export const AdminDashboard = () => {
 
         <div className="flex flex-wrap items-center gap-2.5">
           <Link
+            to="/admin/technicians"
+            className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+          >
+            <Wrench className="w-4 h-4" />
+            Onboard Technicians
+          </Link>
+          <Link
             to="/admin/issues"
-            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all flex items-center gap-1.5"
+            className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-xl border border-white/15 transition-all flex items-center gap-1.5"
           >
             <ClipboardList className="w-4 h-4" />
             Master Issues Database
@@ -281,13 +289,19 @@ export const AdminDashboard = () => {
                           <span className="text-amber-600 font-bold">Unassigned</span>
                         )}
                       </td>
-                      <td className="py-3 px-3 text-right space-x-1.5">
-                        <button
-                          onClick={() => setAssignModalIssue(issue)}
-                          className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition-colors"
-                        >
-                          Assign
-                        </button>
+                      <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
+                        {issue.status === 'Resolved' || issue.status === 'Closed' ? (
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 font-bold rounded-lg text-xs border border-emerald-200/80 inline-block">
+                            Fixed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setAssignModalIssue(issue)}
+                            className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition-colors"
+                          >
+                            Assign
+                          </button>
+                        )}
                         <Link
                           to={`/admin/issues/${issue._id}`}
                           className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg text-xs transition-colors inline-block"

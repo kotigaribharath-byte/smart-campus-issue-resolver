@@ -33,6 +33,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { AllIssuesPage } from './pages/admin/AllIssuesPage';
 import { AdminIssueDetailPage } from './pages/admin/AdminIssueDetailPage';
 import { UsersManagementPage } from './pages/admin/UsersManagementPage';
+import { TechniciansPage } from './pages/admin/TechniciansPage';
 import { DepartmentsPage } from './pages/admin/DepartmentsPage';
 import { BuildingsPage } from './pages/admin/BuildingsPage';
 import { AnalyticsPage } from './pages/admin/AnalyticsPage';
@@ -146,6 +147,14 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <AdminIssueDetailPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/technicians"
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <TechniciansPage />
                     </ProtectedRoute>
                   }
                 />
