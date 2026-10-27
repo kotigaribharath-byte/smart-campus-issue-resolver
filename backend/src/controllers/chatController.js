@@ -4,7 +4,7 @@ import { chatCache } from '../utils/chatCache.js';
 
 const NVIDIA_API_KEY =
   process.env.NVIDIA_API_KEY ||
-  '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';
+  '';
 const NVIDIA_MODEL = process.env.NVIDIA_MODEL || 'openai/gpt-oss-20b';
 
 /**
