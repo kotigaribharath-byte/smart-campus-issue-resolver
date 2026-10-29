@@ -17,7 +17,7 @@ export const NotFoundPage = () => {
         className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md transition-all"
       >
         <Home className="w-4 h-4" />
-        Return to CampusFix Home
+        Return to Home
       </Link>
     </div>
   );
