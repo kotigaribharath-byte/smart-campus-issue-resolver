@@ -10,7 +10,7 @@ export const NotFoundPage = () => {
       </div>
       <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">404 - Page Not Found</h1>
       <p className="text-sm text-slate-500 max-w-sm mt-2 mb-6">
-        The campus resource or page you are trying to reach does not exist or has been relocated.
+        The resource or page you are trying to reach does not exist or has been relocated.
       </p>
       <Link
         to="/"
